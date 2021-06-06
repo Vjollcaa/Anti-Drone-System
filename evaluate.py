@@ -53,12 +53,20 @@ def _main_(args):
     infer_model = load_model(config['train']['saved_weights_name'])
 
     # compute mAP for all the classes
-    average_precisions = evaluate(infer_model, valid_generator)
+    #average_precisions = evaluate(infer_model, valid_generator)
+    average_precisions, recall, precision= evaluate(infer_model, valid_generator)
 
     # print the score
-    for label, average_precision in average_precisions.items():
-        print(labels[label] + ': {:.4f}'.format(average_precision))
-    print('mAP: {:.4f}'.format(sum(average_precisions.values()) / len(average_precisions)))           
+    #for label, average_precision in average_precisions.items():
+    #    print(labels[label] + ': {:.4f}'.format(average_precision))
+    #print('mAP: {:.4f}'.format(sum(average_precisions.values()) / len(average_precisions)))           
+
+    for (c,ap),(c,prec),(c,call) in zip(average_precisions.items(),precision.items(),recall.items()):
+        print("+ Class {c} - AP: {ap}, precision: {prec}, recall: {call}".format(c=c, ap=ap,prec=prec,call=call))
+    map = np.mean(list(average_precisions.values()))
+    mprec=np.mean(list(precision.values()))
+    mrecall=np.mean(list(recall.values()))
+    print("mAP: {map}, mprec: {mprec}, mrecall: {mrecall}".format(map=map,mprec=mprec,mrecall=mrecall))
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Evaluate YOLO_v3 model on any dataset')
