@@ -1,110 +1,81 @@
-# Drone-Detection
-Detect drones from input image, video or real-time feed.
+#Sistemi ynë zbulon dronët përmes imazheve, videove ose burimeve të tjera në kohë reale.
 
-## Requirements
+#Kërkesat
+    + Kërkesat e mjedisit referohen në file-n requirements.txt
+    + Peshat e paratrajnuara të YOLO3 mund të shkarkohen nga nga file zolo3.weights
+    + Testimi i objektit mund të bëhet edhe përmes fotografisë së një qeni.
+     -> File shkarkues "$ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg "
+    + Peshat e paratrajnuara duhet të vendosen në folderin rrënjë (root folder) të depozitës (repository)
 
-- Refer to requirement.txt for environment specifications.
-- Download the pre-trained YOLOv3 weights from [here.](https://pjreddie.com/media/files/yolov3.weights)
-- Download an image of a dog to test object detection.
+#Dataset
+    + Trajnimi i Yolov3 përkrah fotografitë e formatit .xml në formatin PASCAL_VOC.
+    + Folderi Datasetmund të shkarkohet.
+    + Folderi Dataset mund edhe të krijohet, por duhet ndjekur disa hapa:
+      -> Mbledh fotografi nga Kaggle Dataset apo Google Images
+      -> Një mjet për shënim grafik të një imazhi (si psh Labelimg), 
+      -> Vendosja e të gjitha fotografive të folderit "dataset" në folderin "images", dhe xml file-s në folderin "annots"
 
-  > ```shell 
-  > $ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg 
-  > ```
-- Download pretrained weights for backend from [here.](https://1drv.ms/u/s!ApLdDEW3ut5fgQXa7GzSlG-mdza6) This weight must be put in the root folder of the repository. 
+#Trajnimi - 1. Modifikimi i file-s config.js
+    + Specifikimi i path-it të folderave images dhe annots në fushat "train_image_folder" dhe "train_annot_folder"
+    + "labels" listat e cilësive dhe labels duhet të trajnohen. Vetëm imazhet, të cilat kanë etiketa të listuara, futen në rrjet.
 
-## Dataset
-YOLOv3 training requires images with .xml files in PASCAL-VOC format.
+    {
+        "model" : {
+            "min_input_size":       288,
+            "max_input_size":       448,
+            "anchors":              [55,69, 75,234, 133,240, 136,129, 142,363, 203,290, 228,184, 285,359, 341,260],
+            "labels":               ["drone"]
+        },
 
-Click [here] to Download Drone Dataset with .xml files in PASCAL-VOC format.
+        "train": {
+            "train_image_folder":   "F:/Drone/Drone_mira_dataset/images/", 
+            "train_annot_folder":   "F:/Drone/Drone_mira_dataset/annots/",
+            "cache_name":           "drone_train.pkl",
 
-Alternatively, if you want to create your own dataset, follow these steps:
-   1. Collect images from Kaggle Dataset or Google Images.
-   2. Download LabelImg(a graphical image annotation tool) from [this GitHub Repo.](https://github.com/tzutalin/labelImg)
-   3. Setup LabelImg and draw a box around the object of interest in each image using the tool to generate XML files.
-   4. Place all your dataset images in the **images** folder and the xml files in the **annots** folder.
+            "train_times":          8,     # numri i cikleve përmes grupit të trajnimit
+            "pretrained_weights":   "",    # specifikon rrugën e peshave të paratrajnuara, por është mirë të fillohet nga e para     
+            "batch_size":           16,     # numri i fotografive që lexohen në secilin grup
+            "learning_rate":        1e-4,  # shkalla bazë e të mesuarit të paracaktuar
+            "nb_epochs":            100,    # numri i epokave
+            "warmup_epochs":        3,       
+            "ignore_thresh":        0.5,
+            "gpus":                 "0,1",
 
-## Training
+            "grid_scales":          [1,1,1],
+            "obj_scale":            5,
+            "noobj_scale":          1,
+            "xywh_scale":           1,
+            "class_scale":          1,
 
-### 1. Edit config.json
+            "tensorboard_dir":      "logs",
+            "saved_weights_name":   "drone.h5", # emri i model file-t në të cilin është ruajtur modeli ynë i trajnuar
+            "debug":                true    # turn on/off the line to print current confidence,position,size,class losses,recall
+        },
 
-- Specify path of the **images** and **annots** folder in the `"train_image_folder"` and `"train_annot_folder"` fields.
-- The `"labels"` setting lists the labels to be trained on. Only images, which has labels being listed, are fed to the network.
+        "valid": {
+            "valid_image_folder":   "C:/drone/valid_image_folder/",
+            "valid_annot_folder":   "C:/drone/valid_annot_folder/",
+            "cache_name":           "drone_valid.pkl",
 
-```sh
-{
-    "model" : {
-        "min_input_size":       288,
-        "max_input_size":       448,
-        "anchors":              [17,18, 28,24, 36,34, 42,44, 56,51, 72,66, 90,95, 92,154, 139,281],
-        "labels":               ["drone"]
-    },
-
-    "train": {
-        "train_image_folder":   "F:/Drone/Drone_mira_dataset/images/", 
-        "train_annot_folder":   "F:/Drone/Drone_mira_dataset/annots/",
-        "cache_name":           "drone_train.pkl",
-
-        "train_times":          8,     # the no. of times to cycle through the training set
-        "pretrained_weights":   "",    # specify path of pretrained weights,but it's fine to start from scratch       
-        "batch_size":           2,     # the no. of images to read in each batch
-        "learning_rate":        1e-4,  # the base learning rate of the default Adam rate scheduler
-        "nb_epochs":            50,    # no. of epoches
-        "warmup_epochs":        3,       
-        "ignore_thresh":        0.5,
-        "gpus":                 "0,1",
-
-        "grid_scales":          [1,1,1],
-        "obj_scale":            5,
-        "noobj_scale":          1,
-        "xywh_scale":           1,
-        "class_scale":          1,
-
-        "tensorboard_dir":      "logs",
-        "saved_weights_name":   "drone.h5", # name of model file to which our trained model is saved
-        "debug":                true    # turn on/off the line to print current confidence,position,size,class losses,recall
-    },
-
-    "valid": {
-        "valid_image_folder":   "C:/drone/valid_image_folder/",
-        "valid_annot_folder":   "C:/drone/valid_annot_folder/",
-        "cache_name":           "drone_valid.pkl",
-
-        "valid_times":          1
+            "valid_times":          1
+        }
     }
+
+    -2. Gjeneron spiranca për të dhënat
+    $ python gen_anchors.py -c config.json
+    Kopjimi i spirancave (anchors) të gjeneruara të shtypura në terminal në vendosjen e tyre në filen config.js 
+
+    -3. Fillimi i procesit të trajnimit
+    $ python train.py -c config.json
+    Deri në fund të këtij procesi, kodi do të shkruajë peshat e modelit më të mirë ne filen drone.h5 (apo ndonjë emër tjetër që specifikohet ne filen "save_weights_name" config.json). Procesi i trajnimit ndalet kur humbja në grupin e vlerësimit nuk përmirësohet në 3 epoka radhazi.
+
+    -4. Kryerja e detektimit duke përdorur peshat e trajnuara në fotografi, grup të fotografive apo kamerave në internet.
+    $ python predict.py -c config.json -i /path/to/image/or/video/or/cam
+    Për përdorimin e fotove: $ python predict.py -c config.json -i test.jpg
+    Për përdorimin e videove: $ python predict.py -c config.json -i test.mp4
+    Për përdorimin e një fushe në kohë reale: $ python predict.py -c config.json -i webcam
+
+    
 }
-```
-
-### 2. Generate anchors for your dataset
-   > ```shell 
-   > $ python gen_anchors.py -c config.json
-   > ```
-Copy the generated anchors printed on the terminal to the anchors setting in config.json.
-
-### 3. Start the training process
-   > ```shell 
-   > $ python train.py -c config.json
-   > ```
-By the end of this process, the code will write the weights of the best model to file drone.h5 (or whatever name specified in the setting "saved_weights_name" in the config.json file). The training process stops when the loss on the validation set is not improved in 3 consecutive epoches.
-
-### 4. Perform detection using trained weights on image, set of images, video, or webcam
-   > ```shell 
-   > $ python predict.py -c config.json -i /path/to/image/or/video/or/cam
-   > ```
-- For an image use : `$ python predict.py -c config.json -i test.jpg`
-- For a video  use : `$ python predict.py -c config.json -i test.mp4`
-- For a real-time feed use : $ For an image use : `$ python predict.py -c config.json -i webcam`
-
-It carries out detection on the image and write the image with detected bounding boxes to the output folder.
-
-## Evaluation
-Compute the mAP performance of the model defined in saved_weights_name on the validation dataset defined in `"valid_image_folder"` and `"valid_annot_folder"`  
-   > ```shell 
-   > $ python evaluate.py -c config.json
-   > ```
-
-## OUTPUT
-
-Demo:
-
-![](https://github.com/harshiniKumar/Drone-Detection-using-YOLOv3/blob/master/Outputs/Drone-Detection-Demo.gif)
-- Download the [sample output for drone detection in a video.](https://github.com/harshiniKumar/Drone-Detection-using-YOLOv3/blob/master/Outputs/Drone_Video_Detection.mp4?raw=true)
+    #Evaluimi
+    Llogarit MAP performancën të modelit të përcaktuar të definuar në fushat "valid_image_folder" dhe "valid_annot_folder" - $ python evaluate.py -c config.json
