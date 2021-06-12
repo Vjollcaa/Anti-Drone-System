@@ -54,12 +54,7 @@ def _main_(args):
 
     # compute mAP for all the classes
     #average_precisions = evaluate(infer_model, valid_generator)
-    average_precisions, recall, precision= evaluate(infer_model, valid_generator)
-
-    # print the score
-    #for label, average_precision in average_precisions.items():
-    #    print(labels[label] + ': {:.4f}'.format(average_precision))
-    #print('mAP: {:.4f}'.format(sum(average_precisions.values()) / len(average_precisions)))           
+    average_precisions, recall, precision= evaluate(infer_model, valid_generator)         
 
     for (c,ap),(c,prec),(c,call) in zip(average_precisions.items(),precision.items(),recall.items()):
         print("+ Class {c} - AP: {ap}, precision: {prec}, recall: {call}".format(c=c, ap=ap,prec=prec,call=call))
