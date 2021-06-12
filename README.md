@@ -1,28 +1,34 @@
-# Sistemi Anti-Drone për zbulimin dhe neutralizimin e UAV
+# Sistemi Anti-Drone 
 
-## Sistemi ynë zbulon dronët përmes imazheve, videove ose burimeve të tjera në kohë reale.
+### Sistemi ynë zbulon dronët përmes imazheve, videove ose burimeve të tjera në kohë reale.
 
 ## Kërkesat
-    + Kërkesat e mjedisit referohen në file-n requirements.txt
-    + Peshat e paratrajnuara të YOLO3 mund të shkarkohen nga nga file zolo3.weights
-    + Testimi i objektit mund të bëhet edhe përmes fotografisë së një qeni.
-     -> File shkarkues "$ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg "
-    + Peshat e paratrajnuara duhet të vendosen në folderin rrënjë (root folder) të depozitës (repository)
++ Kërkesat e mjedisit referohen në file-n requirements.txt
++ Peshat e paratrajnuara të YOLO3 mund të shkarkohen nga nga file yolo3.weights
++ Testimi i objektit mund të bëhet edhe përmes fotografisë së një qeni.
+
+         ->  "$ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg "
+
+
++ Peshat e paratrajnuara duhet të vendosen në folderin rrënjë (root folder) në repository
 
 ## Dataset
-    + Trajnimi i Yolov3 përkrah fotografitë e formatit .xml në formatin PASCAL_VOC.
-    + Folderi Datasetmund të shkarkohet.
-    + Folderi Dataset mund edhe të krijohet, por duhet ndjekur disa hapa:
-      -> Mbledh fotografi nga Kaggle Dataset apo Google Images
-      -> Një mjet për shënim grafik të një imazhi (si psh Labelimg), 
-      -> Vendosja e të gjitha fotografive të folderit "dataset" në folderin "images", dhe xml file-s në folderin "annots"
++ Trajnimi i Yolov3 kërkon fotografitë me .xml fajla në formatin PASCAL_VOC.
++ Folderi Dataset mund të shkarkohet në: https://drive.google.com/drive/folders/1blTGWhekfaA7lG-XWxa6LnCwqK52L1Qk. 
++ Përndryshe, nëse doni të krijoni datasetin tuaj, ndiqni këto hapa:
+
+
+1. Mbledh fotografi nga Kaggle Dataset apo Google Images
+2.  Shkarkoni LabelImg (një mjet për shënimin e imazheve grafike) nga GitHub 
+3.  Vendosni të gjitha fotografitë e folderit "dataset" në folderin "images", dhe xml fajlat në folderin "annots"
 
 ## Trajnimi 
-### 1. Modifikimi i file-s config.js
-    + Specifikimi i path-it të folderave images dhe annots në fushat "train_image_folder" dhe "train_annot_folder"
-    + "labels" listat e cilësive dhe labels duhet të trajnohen. Vetëm imazhet, të cilat kanë etiketa të listuara, futen në rrjet.
+### 1. Modifikimi i fajlit config.json
+ + Specifikoni path-in e folderave 'images' dhe 'annots' në fushat "train_image_folder" dhe "train_annot_folder"
+ + Fusha "labels" i liston etiketat (labels) mbi të cilat do të trajnohet modeli. Vetëm imazhet, të cilat e kanë etiketën 'uav', merren parasysh gjatë trajnimit.
 
-    {
+
+        {
         "model" : {
             "min_input_size":       288,
             "max_input_size":       448,
@@ -35,11 +41,11 @@
             "train_annot_folder":   "F:/Drone/Drone_mira_dataset/annots/",
             "cache_name":           "drone_train.pkl",
 
-            "train_times":          8,     # numri i cikleve përmes grupit të trajnimit
-            "pretrained_weights":   "",    # specifikon rrugën e peshave të paratrajnuara, por është mirë të fillohet nga e para     
+            "train_times":          8,     # numri i cikleve për nje set të trajnimit
+            "pretrained_weights":   "",    # specifikon path-in e peshave të paratrajnuara, por është rregull të fillohet nga e para     
             "batch_size":           16,     # numri i fotografive që lexohen në secilin grup
-            "learning_rate":        1e-4,  # shkalla bazë e të mesuarit të paracaktuar
-            "nb_epochs":            100,    # numri i epokave
+            "learning_rate":        1e-4,  # shkalla bazë e të mesuarit (default Adam rate scheduler)
+            "nb_epochs":            100,    # numri i epoches
             "warmup_epochs":        3,       
             "ignore_thresh":        0.5,
             "gpus":                 "0,1",
@@ -51,8 +57,8 @@
             "class_scale":          1,
 
             "tensorboard_dir":      "logs",
-            "saved_weights_name":   "drone.h5", # emri i model file-t në të cilin është ruajtur modeli ynë i trajnuar
-            "debug":                true    # turn on/off the line to print current confidence,position,size,class losses,recall
+            "saved_weights_name":   "drone.h5", # emri i fajlit në të cilin ruhet modeli i trajnuar
+            "debug":                true    
         },
 
         "valid": {
@@ -64,26 +70,36 @@
         }
     }
 
-### 2. Gjeneron spiranca për të dhënat
+### 2. Gjeneroni  anchors për datasetin
     $ python gen_anchors.py -c config.json
-    Kopjimi i spirancave (anchors) të gjeneruara të shtypura në terminal në vendosjen e tyre në filen config.js 
+Kopjoni anchors të gjeneruara në terminal dhe vendosni në fajlin config.json 
 
-###   3. Fillimi i procesit të trajnimit
+###   3. Filloni procesin e trajnimit
     $ python train.py -c config.json
-    Deri në fund të këtij procesi, kodi do të shkruajë peshat e modelit më të mirë ne filen drone.h5 (apo ndonjë emër tjetër që specifikohet ne filen "save_weights_name" config.json). Procesi i trajnimit ndalet kur humbja në grupin e vlerësimit nuk përmirësohet në 3 epoka radhazi.
+        
+Deri në fund të këtij procesi, kodi do të shkruajë peshat e modelit më të mirë në fajllin uav_wh.h5 (apo ndonjë emër tjetër që specifikohet në fushën "save_weights_name" në config.json). Procesi i trajnimit ndalet kur humbja në grupin e vlerësimit nuk përmirësohet në 3 epoka radhazi.
 
-### 4. Kryerja e detektimit duke përdorur peshat e trajnuara në fotografi, grup të fotografive apo kamerave në internet.
+### 4. Performoni detektim duke përdorur peshat e trajnuara në fotografi, grup të fotografive apo viedo kamerave.
     $ python predict.py -c config.json -i /path/to/image/or/video/or/cam
-    Për përdorimin e fotove: $ python predict.py -c config.json -i test.jpg
-    Për përdorimin e videove: $ python predict.py -c config.json -i test.mp4
-    Për përdorimin e një fushe në kohë reale: $ python predict.py -c config.json -i webcam
+ Për një fotografi përdorni:
+        
+         $ python predict.py -c config.json -i test.jpg
+Për një video përdorni: 
+
+
+        $ python predict.py -c config.json -i test.mp4
+Për një detektim në kohë reale përdorni:
+            
+             $ python predict.py -c config.json -i webcam
 
     
-}
-# Evaluimi
-    Llogarit MAP performancën të modelit të përcaktuar të definuar në fushat "valid_image_folder" dhe "valid_annot_folder" - $ python evaluate.py -c config.json
 
-#  Rezultati
+## Evaluimi
+Llogaritni mAP performancën e modelit të  definuar në  'saved_weights_name' në datasetin për validim që përcaktohet në fushat "valid_image_folder" dhe "valid_annot_folder" - 
+
+        $ python evaluate.py -c config.json
+
+##  Rezultati
 
 ![5](https://user-images.githubusercontent.com/76743818/121774918-f6b34f00-cb84-11eb-8595-d045814295b5.jpg)
 ![6](https://user-images.githubusercontent.com/76743818/121774932-0337a780-cb85-11eb-9598-fcd156a4f6ac.jpg)
