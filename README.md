@@ -7,7 +7,7 @@
 + Peshat e paratrajnuara të YOLO3 mund të shkarkohen nga nga file yolo3.weights
 + Testimi i objektit mund të bëhet edhe përmes fotografisë së një qeni.
 
-         ->  "$ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg "
+         "$ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg "
 
 
 + Peshat e paratrajnuara duhet të vendosen në folderin rrënjë (root folder) në repository
