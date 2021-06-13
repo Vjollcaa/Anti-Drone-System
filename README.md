@@ -67,8 +67,8 @@
             "cache_name":           "drone_valid.pkl",
 
             "valid_times":          1
+          }
         }
-    }
 
 ### 2. Gjeneroni  anchors për datasetin
     $ python gen_anchors.py -c config.json
