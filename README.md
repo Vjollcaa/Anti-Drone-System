@@ -1,26 +1,26 @@
 # Sistemi Anti-Drone 
 
-### Sistemi ynë zbulon dronët përmes imazheve, videove ose burimeve të tjera në kohë reale.
+### Sistemi ynë detekton dronët përmes imazheve, videove ose burimeve të tjera në kohë reale.
 
 ## Kërkesat
 + Kërkesat e mjedisit referohen në file-n requirements.txt
 + Peshat e paratrajnuara të YOLO3 mund të shkarkohen nga nga file yolo3.weights
-+ Testimi i objektit mund të bëhet edhe përmes fotografisë së një qeni.
++ Testimi i objektit mund të bëhet edhe përmes fotografisë së një qeni. 
 
-         "$ python yolo3_one_file_to_detect_them_all.py -w yolo3.weights -i dog.jpg "
+        $ python yolov3_detect_all.py -w yolo3.weights -i dog.jpg
 
 
 + Peshat e paratrajnuara duhet të vendosen në folderin rrënjë (root folder) në repository
 
 ## Dataset
-+ Trajnimi i Yolov3 kërkon fotografitë me .xml fajla në formatin PASCAL_VOC.
++ Trajnimi i Yolov3 kërkon fotografitë me .xml fajlla në formatin PASCAL_VOC.
 + Folderi Dataset mund të shkarkohet në: https://drive.google.com/drive/folders/1blTGWhekfaA7lG-XWxa6LnCwqK52L1Qk. 
 + Përndryshe, nëse doni të krijoni datasetin tuaj, ndiqni këto hapa:
 
 
-1. Mbledh fotografi nga Kaggle Dataset apo Google Images
-2.  Shkarkoni LabelImg (një mjet për shënimin e imazheve grafike) nga GitHub 
-3.  Vendosni të gjitha fotografitë e folderit "dataset" në folderin "images", dhe xml fajlat në folderin "annots"
+    1. Mbledh fotografi nga Kaggle Dataset apo Google Images
+    2. Shkarkoni LabelImg (një mjet për shënimin e imazheve grafike) nga GitHub 
+    3. Vendosni të gjitha fotografitë e folderit "dataset" në folderin "images", dhe xml fajlat në folderin "annots"
 
 ## Trajnimi 
 ### 1. Modifikimi i fajlit config.json
@@ -79,27 +79,27 @@ Kopjoni anchors të gjeneruara në terminal dhe vendosni në fajlin config.json
         
 Deri në fund të këtij procesi, kodi do të shkruajë peshat e modelit më të mirë në fajllin uav_wh.h5 (apo ndonjë emër tjetër që specifikohet në fushën "save_weights_name" në config.json). Procesi i trajnimit ndalet kur humbja në grupin e vlerësimit nuk përmirësohet në 3 epoka radhazi.
 
-### 4. Performoni detektim duke përdorur peshat e trajnuara në fotografi, grup të fotografive apo viedo kamerave.
+### 4. Performoni detektim duke përdorur peshat e trajnuara në fotografi, grup të fotografive apo video kamerave
     $ python predict.py -c config.json -i /path/to/image/or/video/or/cam
  Për një fotografi përdorni:
         
-         $ python predict.py -c config.json -i test.jpg
+    $ python predict.py -c config.json -i test.jpg
 Për një video përdorni: 
 
 
-        $ python predict.py -c config.json -i test.mp4
+    $ python predict.py -c config.json -i test.mp4
 Për një detektim në kohë reale përdorni:
             
-             $ python predict.py -c config.json -i webcam
+    $ python predict.py -c config.json -i webcam
 
     
 
 ## Evaluimi
 Llogaritni mAP performancën e modelit të  definuar në  'saved_weights_name' në datasetin për validim që përcaktohet në fushat "valid_image_folder" dhe "valid_annot_folder" - 
 
-        $ python evaluate.py -c config.json
+    $ python evaluate.py -c config.json
 
-##  Rezultati
+##  Rezultatet
 
 ![5](https://user-images.githubusercontent.com/76743818/121774918-f6b34f00-cb84-11eb-8595-d045814295b5.jpg)
 ![6](https://user-images.githubusercontent.com/76743818/121774932-0337a780-cb85-11eb-9598-fcd156a4f6ac.jpg)
